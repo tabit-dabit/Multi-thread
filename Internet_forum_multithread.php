@@ -6,12 +6,12 @@
      </head>
      <body>
         <?php
-         //DB接続設定//
-         $dsn = 'データベース名';
-         $user = 'ユーザー名';
-         $password = 'パスワード';
+         //Information of database//
+         $dsn = 'データベース名(Database name)';
+         $user = 'ユーザー名(User name)';
+         $password = 'パスワード(Password)';
          $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
-         //変数の設定//
+         //Setting of variable//
          $threadname = $_POST["threadname"];
          $str = $_POST["str"];
          $name = $_POST["name"];
@@ -22,7 +22,7 @@
          $change = $_POST["change"];
          $editpass = $_POST["editpass"];
          $date = date("Y/m/d H:i:s");
-         //スレ一覧を表示//
+         //Show existing thread//
          $sql ='SHOW TABLES';
 	     $result = $pdo -> query($sql);
 	     foreach ($result as $row){
@@ -30,7 +30,7 @@
 		          echo '<br>';
 	     }
 	echo "<hr>";
-         //スレを作る//
+         //Create a new thread//
          $sql = "CREATE TABLE IF NOT EXISTS $threadname"
 	     ." ("
 	     . "id INT AUTO_INCREMENT PRIMARY KEY,"
@@ -40,7 +40,7 @@
 	     . "pass TEXT"
 	     .");";
 	     $stmt = $pdo->query($sql);
-         //文章が入っている場合書き込みをする//
+         //Wirte a comment//
          if(!empty($str && $name) && empty($erase) && empty($edit)){
              if(!empty($pass)){
                      $sql = $pdo -> prepare("INSERT INTO $threadname (name, comment,date, pass) VALUES (:name, :comment, :date, :pass)");
@@ -49,15 +49,15 @@
 	                 $sql -> bindParam(':date', $date, PDO::PARAM_STR);
 	                 $sql -> bindParam(':pass', $pass, PDO::PARAM_STR);
 	                 $sql -> execute();
-                     $message = $threadname."に書き込みました！";
+                     $message = "Wrote your comment to".$threadname;
              }
              else if (empty($pass)){
-                 $message = "<FONT COLOR = RED SIZE = 5>パスワードを入れてください！</FONT>";
+                 $message = "<FONT COLOR = RED SIZE = 5>Please set a password!</FONT>";
              }
          }
-         //削除番号が入っている場合文章を削除する//
+         //Delete your comment//
          if (!empty($erase && $erasepass) && empty($name && $str)){
-         $message = "<FONT COLOR = RED SIZE = 5>パスワードが違います!</FONT>" ;
+         $message = "<FONT COLOR = RED SIZE = 5>Password is wrong!</FONT>" ;
          $sql = "SELECT * FROM $threadname";
 	     $stmt = $pdo->query($sql);
 	     $results = $stmt->fetchAll();
@@ -67,20 +67,20 @@
 	                    $stmt = $pdo->prepare($sql);
 	                    $stmt->bindParam(':id', $erase, PDO::PARAM_INT);
 	                    $stmt->execute();
-	                    $message = $erase."番目の書き込みを削除しました！";
+	                    $message = "Comment No.".$erase."was deleted!";
                  }
                  continue;
 	         }
          }
-         //書き込みと削除が両方書き込まれてるときはどっちか選ばせる//
+         //Choose write, delete or Rewrite//
          if (!empty($erase || $change) && !empty($name || $str)){
-             echo "<FONT COLOR = RED SIZE = 5>書き込み・削除・編集は同時にできません!</FONT>";
+             echo "<FONT COLOR = RED SIZE = 5>You can't do more than two actions!</FONT>";
          }
-         //編集番号が決まっている場合編集モードにする//
-         //編集ボタンを押したときの挙動//
+         //Rewrite your comment//
+         //Enter the editmode//
          if (empty($erase && $name && $str)
             && !empty($change && $editpass)){
-                $message = "<FONT COLOR = RED SIZE = 5>パスワードが違います!</FONT>" ;
+                $message = "<FONT COLOR = RED SIZE = 5>Password is wrong!</FONT>" ;
                 $sql = "SELECT * FROM $threadname";
 	            $stmt = $pdo->query($sql);
 	            $results = $stmt->fetchAll();
@@ -89,13 +89,13 @@
                              $editnumber = $_POST["change"];
                              $editname = $row['name'];
                              $editline = $row['comment'];
-                             $message = "<FONT COLOR = RED SIZE = 5>編集モードです！</FONT>";
+                             $message = "<FONT COLOR = RED SIZE = 5>Editmode now！</FONT>";
                              }
                         
 	                continue ;
 	            }
          }
-         //編集モードの挙動//
+         //In the editmode//
          if (empty($_POST["erase"]) && !empty($_POST["name"] && $_POST["str"] && $_POST["edit"])){
          $sql = "UPDATE $threadname SET name=:name,comment=:comment,date=:date WHERE id=:id";
 	     $stmt = $pdo->prepare($sql);
@@ -104,16 +104,16 @@
 	     $stmt->bindParam(':date', $date, PDO::PARAM_STR);
 	     $stmt->bindParam(':id', $edit, PDO::PARAM_INT);
 	     $stmt->execute();
-	     $message = $_POST["edit"]."番目の書き込みを編集しました!";
+	     $message = "Comment number".$_POST["edit"]."was rewrited!";
          }
-	     //システムメッセージの表示//
+	     //Show message//
          if(!empty($message)){
               echo $message."<br><br>";
              } 
     ?>
     <form action = "" method = "post">
-             スレ番号<br>
-             <input type = "text" name = "threadname" placeholder = "スレ名" value =
+             thread name<br>
+             <input type = "text" name = "threadname" placeholder = "threadname" value =
              <?php
                  if(!empty($threadname)){
                      echo $threadname;
@@ -122,43 +122,43 @@
              <button type = "submit" name = "submit">選択</button><br>
              <?php
              if(!empty($threadname)){
-             echo $threadname."を表示しています<br>";
+             echo "You are looking".$threadname."<br>";
              }
              ?><br>
-             投稿<br>
-             <input type = "text" name = "name" placeholder = "名前" value =
+             Watch Thread<br>
+             <input type = "text" name = "name" placeholder = "name" value =
              <?php
                  if(!empty($change)){
                      echo $editname;
              }
              ?>><br>
-             <input type = "text" name = "str" placeholder = "コメント" value =
+             <input type = "text" name = "str" placeholder = "comment" value =
              <?php
                  if(!empty($change)){
                      echo $editline;
              }
              ?>><br>
-             <input type = "text" name = "pass" placeholder = "パスワード">
-             <input type = "hidden" name = "edit" placeholder = "隠し値" value = 
+             <input type = "text" name = "pass" placeholder = "password">
+             <input type = "hidden" name = "edit" placeholder = "hiddendate" value = 
                 <?php 
                      if(!empty(change)){
                          echo $editnumber;
                      }
                 ?>
             >
-             <button type = "submit" name = "submit">投稿</button><br><br>
-             削除<br>
-             <input type = "number" name = "erase" placeholder = "削除対象番号"><br>
-             <input type = "text" name = "erasepass" placeholder = "パスワード">
-             <button type = "submit" name = "submit">削除</button><br><br>
-             編集<br>
-             <input type = "number" name = "change" placeholder = "編集対象番号"><br>
-             <input type = "text" name = "editpass" placeholder = "パスワード">
-             <button type = "submit" name = "submit">編集</button>
+             <button type = "submit" name = "submit">Post</button><br><br>
+             Delete comment<br>
+             <input type = "number" name = "erase" placeholder = "comment number"><br>
+             <input type = "text" name = "erasepass" placeholder = "password">
+             <button type = "submit" name = "submit">Delete</button><br><br>
+             Rewrite comment<br>
+             <input type = "number" name = "change" placeholder = "comment number"><br>
+             <input type = "text" name = "editpass" placeholder = "password">
+             <button type = "submit" name = "submit">Edit</button>
      </form>
     <?php
          //ブラウザに書き込み内容を表示//
-         echo "書き込み一覧<br><br>";
+         echo "All comments<br><br>";
          $sql = "SELECT * FROM $threadname";
 	     $stmt = $pdo->query($sql);
 	     $results = $stmt->fetchAll();
