@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang = "ja">
+<html lang = "en">
      <head>
         <meta charset = "UTF-8">
         <title>multithread</title>
@@ -7,9 +7,9 @@
      <body>
         <?php
          //Information of database//
-         $dsn = 'データベース名(Database name)';
-         $user = 'ユーザー名(User name)';
-         $password = 'パスワード(Password)';
+         $dsn = 'Database name';
+         $user = 'User name';
+         $password = 'Password';
          $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
          //Setting of variable//
          $threadname = $_POST["threadname"];
@@ -157,7 +157,7 @@
              <button type = "submit" name = "submit">Edit</button>
      </form>
     <?php
-         //ブラウザに書き込み内容を表示//
+         //Show all comments of thread//
          echo "All comments<br><br>";
          $sql = "SELECT * FROM $threadname";
 	     $stmt = $pdo->query($sql);
